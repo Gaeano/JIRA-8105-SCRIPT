@@ -2,6 +2,9 @@ const PROPS = PropertiesService.getScriptProperties().getProperties();
 
 const SPREADSHEET_ID = "1lyuhh9mCiHX1L0rkB4JjLD3lnssbAf6mTlcc2clMm50";
 
+//example date 
+const LATE_FILING_CUTOFF = new Date("2025-12-31");
+
 const SHEETS = {
   PARENT: "parent item",
   LAPTOP: "machine details",

@@ -3,4 +3,5 @@ node_modules/
 .env
 *.md
 *.json
-!src/appsscript.json
+!**/appsscript.json
+!appsscript.json
