@@ -34,7 +34,7 @@ function jsonResponse(obj){ return ContentService.createTextOutput(JSON.stringif
 //get sheets
 function getSheet(sheetName){
   const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(sheetName);
-  if(!sheet) throw new Error(`Sheet not found" ${sheetName}`);
+  if(!sheet) throw new Error(`Sheet not found "${sheetName}"`);
   return sheet;
 }
 
