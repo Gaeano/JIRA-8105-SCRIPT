@@ -2,9 +2,6 @@ const PROPS = PropertiesService.getScriptProperties().getProperties();
 
 const SPREADSHEET_ID = "1lyuhh9mCiHX1L0rkB4JjLD3lnssbAf6mTlcc2clMm50";
 
-//example date 
-const LATE_FILING_CUTOFF = new Date("2025-12-31");
-
 const SHEETS = {
   PARENT: "parent item",
   LAPTOP: "machine details",
@@ -32,6 +29,16 @@ function doPost(e) {
 
 /** HELPERS */
 function jsonResponse(obj){ return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON); }
+
+// Late filing = Date Received falls in a year before the current year (Manila time).
+// Jira date fields arrive as "YYYY-MM-DD", so the year is read from the string
+// directly to avoid timezone shifts. Empty dates are not flagged.
+function isLateFiling(dateReceived){
+  if (!dateReceived) return false;
+  const receivedYear = Number(String(dateReceived).slice(0, 4));
+  const currentYear = Number(Utilities.formatDate(new Date(), "Asia/Manila", "yyyy"));
+  return receivedYear < currentYear;
+}
 
 // ============ FOR SHEETS
 
