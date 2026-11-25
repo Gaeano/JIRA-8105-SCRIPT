@@ -1,12 +1,11 @@
 const PROPS = PropertiesService.getScriptProperties().getProperties();
 
-const CONFIG = {
-  SHEETS: {
-    PARENT: "parent item",
-    LAPTOP: "machine details",
-    ADDONS: "add-ons"
-  },
-  // can add more here
+const SPREADSHEET_ID = "1lyuhh9mCiHX1L0rkB4JjLD3lnssbAf6mTlcc2clMm50";
+
+const SHEETS = {
+  PARENT: "parent item",
+  LAPTOP: "machine details",
+  ADDONS: "add-ons"
 }
 
 function doPost(e) {
@@ -35,8 +34,8 @@ function jsonResponse(obj){ return ContentService.createTextOutput(JSON.stringif
 
 //get sheets
 function getSheet(sheetName){
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
-  if(!sheet) throw new Error(`Sheet not found" ${sheetName}`);
+  const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(sheetName);
+  if(!sheet) throw new Error(`Sheet not found "${sheetName}"`);
   return sheet;
 }
 
