@@ -1,9 +1,12 @@
 const PROPS = PropertiesService.getScriptProperties().getProperties();
 
-const SHEETS = {
-  PARENT: "parent item",
-  LAPTOP: "machine details",
-  ADDONS: "add-ons"
+const CONFIG = {
+  SHEETS: {
+    PARENT: "parent item",
+    LAPTOP: "machine details",
+    ADDONS: "add-ons"
+  },
+  // can add more here
 }
 
 function doPost(e) {
@@ -15,7 +18,8 @@ function doPost(e) {
     const issueKey = payload.issueKey;
     if (!issueKey) return jsonResponse({ status: 'error', message: 'missing issue key'});
 
-    processPezaPermit(issueKey);
+    //processPezaPermit(issueKey);
+    console.log('Webhook received for issueKey:', payload.issueKey);
     return jsonResponse({ status: 'success', issueKey});
      
   } catch(err) {
@@ -53,4 +57,32 @@ function appendRow(sheetName, rowData){
 
 function writeToCell(sheetName, rowIndex, colIndex, value){
   getSheet(sheetName).getRange(rowIndex + 1, colIndex + 1).setValue(value);
+}
+
+function testLocal() {
+  const issueKey = 'SI-TEST-007';
+  const url = `https://${PROPS.JIRA_DOMAIN}/rest/api/3/issue/${issueKey}`;
+  const authHeader = `Basic ` + Utilities.base64Encode(`${PROPS.JIRA_EMAIL}:${PROPS.JIRA_API_TOKEN}`);
+
+  const response = UrlFetchApp.fetch(url, {
+    method: 'get',
+    headers: {
+      'Authorization': authHeader,
+      'Accept': 'application/json'
+    },
+    muteHttpExceptions: true
+  });
+
+  const code = response.getResponseCode();
+  if (code !== 200) {
+    console.error(`connection failed`);
+    return;
+  }
+
+  const issue = JSON.parse(response.getContentText());
+  console.log('Connection OK (200)');
+  console.log('Key:', issue.key);
+  console.log('Summary:', issue.fields.summary);
+  console.log('Subtasks count:', (issue.fields.subtasks || []).length);
+
 }
