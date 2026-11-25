@@ -59,7 +59,7 @@ function writeToCell(sheetName, rowIndex, colIndex, value){
 }
 
 function testLocal() {
-  const issueKey = 'SI-TEST-007';
+  const issueKey = 'SI-25';
   const url = `${PROPS.JIRA_DOMAIN}/rest/api/3/issue/${issueKey}`;
   const authHeader = `Basic ` + Utilities.base64Encode(`${PROPS.JIRA_EMAIL}:${PROPS.JIRA_API_TOKEN}`);
 
