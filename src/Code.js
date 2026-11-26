@@ -60,9 +60,16 @@ function populateSheetWithIssueData(issueData, sheetName) {
 
     let val = field.extract(issueData);
 
-    // Unwrap Jira dropdown/select objects ({ value: "Laptop" }) if returned
-    if (val && typeof val === 'object' && !(val instanceof Date) && !Array.isArray(val) && val.value !== undefined) {
-      val = val.value;
+    // handle arrays with multiple select options
+    if (Array.isArray(val)) {
+      val = val
+        .map(item => (item && typeof item === 'object' ? (item.value ?? item.name ?? JSON.stringify(item)) : item))
+        .filter(Boolean)
+        .join(', ');
+    } 
+    // 2. Handle Single Objects (e.g., Jira Single-Select or User/Asset objects)
+    else if (val && typeof val === 'object' && !(val instanceof Date)) {
+      val = val.value ?? val.name ?? JSON.stringify(val);
     }
 
     rowData[field.col] = val ?? "";
