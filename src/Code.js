@@ -33,7 +33,7 @@ function doPost(e) {
      
   } catch(err) {
     console.error('doPost error:', err);
-    return jsonResponse({ status: 'error', message: err.message});
+    return jsonResponse({ status: 'error', message: err});
   }
 }
 
