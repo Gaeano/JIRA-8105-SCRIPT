@@ -231,10 +231,10 @@ function writeToCell(sheetName, rowIndex, colIndex, value){
 }
 
 function testLocal() {
-  const issueKey = 'SI-8';
+  const issueKey = 'SI-17';
   const issue = fetchJiraIssue(issueKey);
   console.log('Connection OK (200)');
 
-  populateSheetWithIssueData(issue, SHEETS.PARENT);
+  populateSheetWithIssueData(issue, sheetNameForIssue(issue));
 
 }
