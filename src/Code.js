@@ -42,9 +42,10 @@ function doPost(e) {
 }
 
 // Jira issue type name (lowercase) -> sheet tab.
-// NOTE: the names below are guesses - check the real names in your Jira project.
+// Invoice and Peza Permit both land in the parent sheet.
 // An unrecognised type throws an error that includes the actual name.
 const ISSUE_TYPE_TO_SHEET = {
+  "invoice":     SHEETS.PARENT,
   "peza permit": SHEETS.PARENT,
   "laptop":      SHEETS.LAPTOP,
   "add-on":      SHEETS.ADDONS,
