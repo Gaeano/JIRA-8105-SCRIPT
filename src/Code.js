@@ -27,14 +27,71 @@ function doPost(e) {
     const issueKey = payload.issueKey;
     if (!issueKey) return jsonResponse({ status: 'error', message: 'missing issue key'});
 
-    //processPezaPermit(issueKey);
-    console.log('Webhook received for issueKey:', payload.issueKey);
-    return jsonResponse({ status: 'success', issueKey});
-     
+    console.log('Webhook received for issueKey:', issueKey);
+
+    const issue = fetchJiraIssue(issueKey);
+    const sheetName = sheetNameForIssue(issue);
+    populateSheetWithIssueData(issue, sheetName);
+
+    return jsonResponse({ status: 'success', issueKey, sheet: sheetName});
+
   } catch(err) {
     console.error('doPost error:', err);
-    return jsonResponse({ status: 'error', message: err});
+    return jsonResponse({ status: 'error', message: err instanceof Error ? err.message : String(err)});
   }
+}
+
+// Jira issue type name (lowercase) -> sheet tab.
+// NOTE: the names below are guesses - check the real names in your Jira project.
+// An unrecognised type throws an error that includes the actual name.
+const ISSUE_TYPE_TO_SHEET = {
+  "peza permit": SHEETS.PARENT,
+  "laptop":      SHEETS.LAPTOP,
+  "add-on":      SHEETS.ADDONS,
+  "add-ons":     SHEETS.ADDONS
+};
+
+function sheetNameForIssue(issue) {
+  const typeName = issue.fields?.issuetype?.name;
+  const sheetName = ISSUE_TYPE_TO_SHEET[String(typeName || "").trim().toLowerCase()];
+  if (!sheetName) throw new Error(`No sheet mapped for issue type "${typeName}" (issue ${issue.key})`);
+  return sheetName;
+}
+
+function fetchJiraIssue(issueKey) {
+  const url = `${PROPS.JIRA_DOMAIN}/rest/api/3/issue/${encodeURIComponent(issueKey)}`;
+  const authHeader = `Basic ` + Utilities.base64Encode(`${PROPS.JIRA_EMAIL}:${PROPS.JIRA_API_TOKEN}`);
+
+  const response = UrlFetchApp.fetch(url, {
+    method: 'get',
+    headers: {
+      'Authorization': authHeader,
+      'Accept': 'application/json'
+    },
+    muteHttpExceptions: true
+  });
+
+  const code = response.getResponseCode();
+  if (code !== 200) {
+    throw new Error(`Jira fetch failed for ${issueKey}: HTTP ${code} - ${response.getContentText()}`);
+  }
+  return JSON.parse(response.getContentText());
+}
+
+// Jira rich-text (ADF) fields arrive as objects; plain text fields as strings.
+// Returns plain text either way so callers can safely split/trim.
+function toPlainText(val) {
+  if (val === null || val === undefined) return "";
+  if (typeof val === 'string') return val;
+  if (Array.isArray(val)) return val.map(toPlainText).join(", ");
+  if (typeof val === 'object') {
+    if (val.type === 'text') return val.text || "";
+    if (val.type === 'hardBreak') return "\n";
+    const inner = (val.content || []).map(toPlainText).join("");
+    // separate block nodes (paragraphs, list items) with newlines
+    return ['paragraph', 'listItem', 'heading'].includes(val.type) ? inner + "\n" : inner;
+  }
+  return String(val);
 }
 
 //inside the parent function it should have an if else function of what issue type in order to populate the correct sheet tab
@@ -174,27 +231,9 @@ function writeToCell(sheetName, rowIndex, colIndex, value){
 
 function testLocal() {
   const issueKey = 'SI-8';
-  const url = `${PROPS.JIRA_DOMAIN}/rest/api/3/issue/${issueKey}`;
-  const authHeader = `Basic ` + Utilities.base64Encode(`${PROPS.JIRA_EMAIL}:${PROPS.JIRA_API_TOKEN}`);
-
-  const response = UrlFetchApp.fetch(url, {
-    method: 'get',
-    headers: {
-      'Authorization': authHeader,
-      'Accept': 'application/json'
-    },
-    muteHttpExceptions: true
-  });
-
-  const code = response.getResponseCode();
-  if (code !== 200) {
-    console.error(`connection failed`);
-    return;
-  }
-
-  const issue = JSON.parse(response.getContentText());
+  const issue = fetchJiraIssue(issueKey);
   console.log('Connection OK (200)');
-  
+
   populateSheetWithIssueData(issue, SHEETS.PARENT);
 
 }
