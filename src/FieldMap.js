@@ -14,7 +14,8 @@ const FIELD_MAPS = {
     { col: 10, key: "generated_doc_url", extract: ()  => "" },
     { col: 11, key: "subtasks_ready",    extract: ()  => false },
     { col: 12, key: "last_synced_at",    extract: ()  => new Date() },
-    { col: 13, key: "sync_error",        extract: ()  => "" }
+    { col: 13, key: "sync_error",        extract: ()  => "" },
+    { col: 14, key: "row_hash",          extract: (f) => "" }
   ],
 
   LAPTOP: [
@@ -36,7 +37,8 @@ const FIELD_MAPS = {
     { col: 15, key: "inventory_codes",   extract: (f) => f.fields.customfield_11600 },
     { col: 16, key: "sn_count",          extract: (f) => (f.fields.customfield_10250 || "").split(",").filter(Boolean).length },
     { col: 17, key: "last_synced_at",    extract: ()  => new Date() },
-    { col: 18, key: "sync_error",        extract: ()  => "" }
+    { col: 18, key: "sync_error",        extract: ()  => "" },
+    { col: 19, key: "row_hash", extract: () => "" }
   ],
 
   ADDONS: [
@@ -48,7 +50,8 @@ const FIELD_MAPS = {
     { col: 5, key: "quantity",          extract: (f) => f.fields.customfield_11595 },
     { col: 6, key: "unit_price",        extract: (f) => f.fields.customfield_11596 },
     { col: 7, key: "last_synced_at",    extract: ()  => new Date() },
-    { col: 8, key: "sync_error",        extract: ()  => "" }
+    { col: 8, key: "sync_error",        extract: ()  => "" },
+    { col: 9,  key: "row_hash", extract: () => "" }
   ]
 
 };
